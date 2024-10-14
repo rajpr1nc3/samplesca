@@ -33,31 +33,9 @@ jobs:
       - name: List files
         run: ls -la
 
-      - name: Read Trivy report
-        id: read_report
-        run: |
-          report=$(<trivy_report.txt)
-          echo "report<<EOF" >> $GITHUB_ENV
-          echo "$report" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Send email with Trivy results
+      - name: Upload Trivy report
         if: always()
-        uses: dawidd6/action-send-mail@v3
+        uses: actions/upload-artifact@v4
         with:
-          server_address: ${{ secrets.SMTP_SERVER }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: Trivy SCA Scan Results - ${{ github.repository }}
-          body: |
-            Hello,
-
-            Here are the results of the latest Trivy SCA scan for the repository ${{ github.repository }}:
-
-            ${{ env.report }}
-
-            Best regards,
-            GitHub Actions Bot
-          to: "prince.lucideus@gmail.com"
-          from: "princeraj.hnt@gmail.com"
+          name: trivy-sca-scan-results
+          path: trivy_report.txt
