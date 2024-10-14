@@ -35,7 +35,11 @@ jobs:
 
       - name: Read Trivy report
         id: read_report
-        run: echo "::set-output name=report::$(cat trivy_report.txt)"
+        run: |
+          report=$(<trivy_report.txt)
+          echo "report<<EOF" >> $GITHUB_ENV
+          echo "$report" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Send email with Trivy results
         if: always()
@@ -51,7 +55,7 @@ jobs:
 
             Here are the results of the latest Trivy SCA scan for the repository ${{ github.repository }}:
 
-            ${{ steps.read_report.outputs.report }}
+            ${{ env.report }}
 
             Best regards,
             GitHub Actions Bot
