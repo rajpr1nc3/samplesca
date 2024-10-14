@@ -1,0 +1,36 @@
+name: Trivy SCA Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  trivy-sca-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y wget
+          wget -qO- https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update -y
+          sudo apt-get install -y trivy
+
+      - name: Run Trivy SCA scan
+        run: |
+          trivy fs --scanners vuln --severity HIGH,CRITICAL,MEDIUM,LOW --ignore-unfixed --format table .
+
+      - name: Upload Trivy report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-sca-scan-results
+          path: ./trivy-results.txt
