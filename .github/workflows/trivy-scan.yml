@@ -33,4 +33,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: trivy-sca-scan-results
-          path: ./trivy-results.txt
+          path: ./samplesca//trivy-sca-scan.txt.json
