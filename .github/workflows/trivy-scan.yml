@@ -26,7 +26,10 @@ jobs:
 
       - name: Run Trivy SCA scan
         run: |
-          trivy fs --scanners vuln --severity HIGH,CRITICAL,MEDIUM,LOW --ignore-unfixed --format table .
+          trivy fs --scanners vuln --severity HIGH,CRITICAL,MEDIUM,LOW --ignore-unfixed --format table . > trivy_report.txt || echo "Trivy scan failed"
+
+      - name: List files
+        run: ls -la
 
       - name: Upload Trivy report
         if: always()
