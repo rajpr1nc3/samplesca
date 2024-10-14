@@ -30,12 +30,12 @@ jobs:
         run: |
           trivy fs --scanners vuln --severity HIGH,CRITICAL,MEDIUM,LOW --ignore-unfixed --format table . > trivy_report.txt || echo "Trivy scan failed"
 
-      - name: Upload Trivy report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-sca-scan-results
-          path: trivy_report.txt
+      - name: List files
+        run: ls -la
+
+      - name: Read Trivy report
+        id: read_report
+        run: echo "::set-output name=report::$(cat trivy_report.txt)"
 
       - name: Send email with Trivy results
         if: always()
@@ -51,7 +51,7 @@ jobs:
 
             Here are the results of the latest Trivy SCA scan for the repository ${{ github.repository }}:
 
-            $(cat trivy_report.txt)
+            ${{ steps.read_report.outputs.report }}
 
             Best regards,
             GitHub Actions Bot
