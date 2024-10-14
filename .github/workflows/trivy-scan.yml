@@ -1,6 +1,8 @@
-name: Trivy SCA Scan
+name: Daily Trivy SCA Scan
 
 on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
   push:
     branches:
       - main
@@ -28,12 +30,30 @@ jobs:
         run: |
           trivy fs --scanners vuln --severity HIGH,CRITICAL,MEDIUM,LOW --ignore-unfixed --format table . > trivy_report.txt || echo "Trivy scan failed"
 
-      - name: List files
-        run: ls -la
-
       - name: Upload Trivy report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: trivy-sca-scan-results
           path: trivy_report.txt
+
+      - name: Send email with Trivy results
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: Trivy SCA Scan Results - ${{ github.repository }}
+          body: |
+            Hello,
+
+            Here are the results of the latest Trivy SCA scan for the repository ${{ github.repository }}:
+
+            $(cat trivy_report.txt)
+
+            Best regards,
+            GitHub Actions Bot
+          to: "prince.lucideus@gmail.com"
+          from: "princeraj.hnt@gmail.com"
