@@ -1,6 +1,7 @@
-name: Trivy SCA Scan
+name: Trivy Repo Scan
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -9,31 +10,23 @@ on:
       - main
 
 jobs:
-  trivy-sca-scan:
+  trivy-scan:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Trivy
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y wget
-          wget -qO- https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update -y
-          sudo apt-get install -y trivy
-
-      - name: Run Trivy SCA scan
-        run: |
-          trivy fs --scanners vuln --severity HIGH,CRITICAL,MEDIUM,LOW --ignore-unfixed --format table . > trivy_report.txt || echo "Trivy scan failed"
-
-      - name: List files
-        run: ls -la
+      - name: Run Trivy Repo Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'repo'            # Specifies repository scan
+          format: 'table'               # Output format as table
+          output: 'trivy_report.json'   # Outputs to trivy_report.json
 
       - name: Upload Trivy report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-sca-scan-results
-          path: trivy_report.txt
+          name: trivy-repo-scan-results
+          path: trivy_report.json
