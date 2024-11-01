@@ -7,7 +7,7 @@ def clone_and_scan(repo_url):
     
     if not github_token:
         print("Error: GITHUB_TOKEN is not set.")
-        return
+        return;;
 
     auth_repo_url = repo_url.replace("https://github.com/", f"https://{github_token}@github.com/")
     
