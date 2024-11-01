@@ -1,4 +1,4 @@
-name: Daily Trivy SCA Scan
+name: Trivy SCA Scan
 
 on:
   push:
