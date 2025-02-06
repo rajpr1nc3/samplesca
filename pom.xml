@@ -9,6 +9,7 @@
     <description>A collection of vulnerable Java apps</description>
     <url>https://github.com/snyk-labs/java-goof</url>
 
+         
     <modules>
         <module>todolist-goof</module>
         <module>log4shell-goof</module>
